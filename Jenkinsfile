@@ -66,30 +66,6 @@ def get_macos_pipeline() {
             --settings concurrentqueue:build_type=Release \
             --build=outdated"
         }  // stage
-
-        stage("macOS: Upload") {
-          pkg_name = sh(
-            script: "conan inspect --attribute name . | cut -d ' ' -f 2",
-            returnStdout: true
-          ).trim()
-
-          pkg_version = sh(
-            script: "conan inspect --attribute version . | cut -d ' ' -f 2",
-            returnStdout: true
-          ).trim()
-
-          if (conan_pkg_channel == "stable") {
-            conan_upload_flag = "--no-overwrite"
-          } else {
-            conan_upload_flag = ""
-          }
-
-          sh "conan upload \
-            --all \
-            ${conan_upload_flag} \
-            --remote ${conan_remote} \
-            ${pkg_name}/${pkg_version}@${conan_user}/${conan_pkg_channel}"
-        }  // stage
       }  // dir
     }  // node
   }  // return
@@ -121,25 +97,13 @@ def get_win10_pipeline() {
         }  // stage
 
         stage("win10: Package") {
-          //bat """C:\\Users\\dmgroup\\AppData\\Local\\Programs\\Python\\Python36\\Scripts\\conan.exe \
-          //  create . ${conan_user}/${conan_pkg_channel} \
-          //  --settings concurrentqueue:build_type=Release \
-          //  --build=outdated"""
-
           bat """C:\\Users\\dmgroup\\AppData\\Local\\Programs\\Python\\Python36\\Scripts\\conan.exe \
             create . ${conan_user}/${conan_pkg_channel} \
             --settings concurrentqueue:build_type=Release \
             --build=outdated"""
         }  // stage
-
-        stage("win10: Upload") {
-          //sh "upload_conan_package.sh conanfile.py \
-          //  ${conan_remote} \
-           // ${conan_user} \
-           // ${conan_pkg_channel}"
-        }  // stage
       }  // dir
-      }
+      }  // ws
     }  // node
   }  // return
 }  // def
