@@ -65,7 +65,9 @@ def get_macos_pipeline() {
           sh "conan create . ${conan_user}/${conan_pkg_channel} \
             --settings concurrentqueue:build_type=Release \
             --build=outdated"
+        }  // stage
 
+        stage("macOS: Upload") {
           pkg_name = sh(
             script: "conan inspect --attribute name . | cut -d ' ' -f 2",
             returnStdout: true
@@ -75,9 +77,13 @@ def get_macos_pipeline() {
             script: "conan inspect --attribute version . | cut -d ' ' -f 2",
             returnStdout: true
           ).trim()
-        }  // stage
 
-        stage("macOS: Upload") {
+          if (conan_pkg_channel == "stable") {
+            conan_upload_flag = "--no-overwrite"
+          } else {
+            conan_upload_flag = ""
+          }
+
           sh "conan upload \
             --all \
             ${conan_upload_flag} \
